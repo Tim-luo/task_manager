@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        // 侧边导航切换
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('#sidebar nav a');
+            const contentSections = document.querySelectorAll('main > section[id$="-tasks"]');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // 移除所有导航链接的活动状态
+                    navLinks.forEach(l => {
+                        l.classList.remove('border-primary', 'bg-primary/5');
+                        l.classList.add('border-transparent');
+                    });
+
+                    // 添加当前导航链接的活动状态
+                    this.classList.add('border-primary', 'bg-primary/5');
+                    this.classList.remove('border-transparent');
+
+                    // 隐藏所有内容区域
+                    contentSections.forEach(section => {
+                        section.classList.add('hidden');
+                    });
+
+                    // 显示对应的内容区域
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.classList.remove('hidden');
+                    }
+                });
+            });
+        });
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        accent: '#8b5cf6',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-dark min-h-screen flex overflow-hidden">
+    <!-- 侧边导航栏 -->
+    <aside class="bg-white shadow-md w-64 h-screen fixed left-0 top-0 z-40 overflow-y-auto transition-all duration-300" id="sidebar">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-tasks text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">任务管理</h1>
+            </div>
+        </div>
+        <nav class="py-4">
+            <a href="#daily-tasks" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-primary bg-primary/5">
+                <i class="fa fa-calendar-day w-5 text-center mr-3"></i>
+                <span>日任务</span>
+            </a>
+            <a href="#monthly-tasks" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-transparent">
+                <i class="fa fa-calendar-alt w-5 text-center mr-3"></i>
+                <span>月任务</span>
+            </a>
+            <a href="#yearly-tasks" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-transparent">
+                <i class="fa fa-calendar w-5 text-center mr-3"></i>
+                <span>年任务</span>
+            </a>
+            <a href="#top-quality-tasks" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-transparent">
+                <i class="fa fa-star w-5 text-center mr-3"></i>
+                <span>TOP质量任务</span>
+            </a>
+        </nav>
+    </aside>
+    <div class="flex-1 ml-64 overflow-x-hidden">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md fixed w-full top-0 left-64 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-tasks text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">任务管理仪表盘</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#overview" class="text-gray-600 hover:text-primary transition-colors duration-200">概览</a>
+                <a href="#tasks" class="text-gray-600 hover:text-primary transition-colors duration-200">任务列表</a>
+                <a href="#analytics" class="text-gray-600 hover:text-primary transition-colors duration-200">数据分析</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <select id="dataSource" class="bg-gray-100 border border-gray-300 text-gray-700 py-1 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200">
+                    <option value="daily">日任务数据 (Day 1)</option>
+                    <option value="monthly">月度任务数据</option>
+                </select>
+                <button class="md:hidden text-gray-600 focus:outline-none" id="mobileMenuButton">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white border-t border-gray-200" id="mobileMenu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#overview" class="text-gray-600 hover:text-primary py-2 transition-colors duration-200">概览</a>
+                <a href="#tasks" class="text-gray-600 hover:text-primary py-2 transition-colors duration-200">任务列表</a>
+                <a href="#analytics" class="text-gray-600 hover:text-primary py-2 transition-colors duration-200">数据分析</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow container mx-auto px-4 pt-24 pb-12">
+        <!-- 日任务内容 -->
+        <section id="daily-tasks" class="mb-10 scroll-mt-24">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fa fa-calendar-day text-primary mr-2"></i> 日任务
+            </h2>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <p>日任务内容将在这里显示。</p>
+            </div>
+        </section>
+
+        <!-- 月任务内容 -->
+        <section id="monthly-tasks" class="mb-10 scroll-mt-24 hidden">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fa fa-calendar-alt text-primary mr-2"></i> 月任务
+            </h2>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <p>月任务内容将在这里显示。</p>
+            </div>
+        </section>
+
+        <!-- 年任务内容 -->
+        <section id="yearly-tasks" class="mb-10 scroll-mt-24 hidden">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fa fa-calendar text-primary mr-2"></i> 年任务
+            </h2>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <p>年任务内容将在这里显示。</p>
+            </div>
+        </section>
+
+        <!-- TOP质量任务内容 -->
+        <section id="top-quality-tasks" class="mb-10 scroll-mt-24 hidden">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fa fa-star text-primary mr-2"></i> TOP质量任务
+            </h2>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <p>TOP质量任务内容将在这里显示。</p>
+            </div>
+        </section>
+        <!-- 概览卡片 -->
+        <section id="overview" class="mb-10 scroll-mt-24">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fa fa-dashboard text-primary mr-2"></i> 数据概览
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 任务总数 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-500 font-medium">任务总数</h3>
+                        <div class="bg-primary/10 p-2 rounded-lg">
+                            <i class="fa fa-list text-primary"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold" id="totalTasks">0</p>
+                    <p class="text-gray-500 text-sm mt-2" id="taskStatusSummary"></p>
+                </div>
+                <!-- 总预计时长 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-500 font-medium">总预计时长</h3>
+                        <div class="bg-secondary/10 p-2 rounded-lg">
+                            <i class="fa fa-clock-o text-secondary"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold" id="totalEstimatedHours">0</p>
+                    <p class="text-gray-500 text-sm mt-2"><i class="fa fa-hourglass-start mr-1"></i> 小时</p>
+                </div>
+                <!-- 总实际时长 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-500 font-medium">总实际时长</h3>
+                        <div class="bg-accent/10 p-2 rounded-lg">
+                            <i class="fa fa-check-circle text-accent"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold" id="totalActualHours">0</p>
+                    <p class="text-gray-500 text-sm mt-2"><i class="fa fa-hourglass-end mr-1"></i> 小时</p>
+                </div>
+                <!-- 工时偏差 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-gray-500 font-medium">工时偏差</h3>
+                        <div class="bg-warning/10 p-2 rounded-lg">
+                            <i class="fa fa-balance-scale text-warning"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold" id="hourVariance">0</p>
+                    <p class="text-gray-500 text-sm mt-2" id="variancePercentage"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 任务列表 -->
+        <section id="tasks" class="mb-10 scroll-mt-24">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+                <h2 class="text-2xl font-bold flex items-center mb-4 md:mb-0">
+                    <i class="fa fa-tasks text-primary mr-2"></i> 任务列表
+                </h2>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative">
+                        <input type="text" id="searchTasks" placeholder="搜索任务..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 w-full sm:w-64">
+                        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <select id="filterStatus" class="bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 w-full sm:w-auto">
+                        <option value="all">所有状态</option>
+                        <option value="已完成">已完成</option>
+                        <option value="进行中">进行中</option>
+                        <option value="未开始">未开始</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl overflow-hidden card-shadow">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">任务ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">任务名称</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">标签</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">预计时长</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">实际时长</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成情况</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">完成人</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">时间范围</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="taskTableBody">
+                            <!-- 任务数据将通过JavaScript动态填充 -->
+                            <tr>
+                                <td colspan="8" class="px-6 py-10 text-center text-gray-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <i class="fa fa-spinner fa-spin text-4xl mb-3 text-gray-300"></i>
+                                        <p>加载任务数据中...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- 分页 -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="prevPage">
+                            上一页
+                        </button>
+                        <button class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" id="nextPage">
+                            下一页
+                        </button>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                显示 <span id="startRange">0</span> 到 <span id="endRange">0</span> 条，共 <span id="totalItems">0</span> 条
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" id="prevPageSm">
+                                    <span class="sr-only">上一页</span>
+                                    <i class="fa fa-chevron-left"></i>
+                                </button>
+                                <span id="paginationNumbers" class="flex -space-x-px">
+                                    <!-- 页码将通过JavaScript动态填充 -->
+                                </span>
+                                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" id="nextPageSm">
+                                    <span class="sr-only">下一页</span>
+                                    <i class="fa fa-chevron-right"></i>
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 数据分析 -->
+        <section id="analytics" class="mb-10 scroll-mt-24">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fa fa-bar-chart text-primary mr-2"></i> 数据分析
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 任务状态分布 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300">
+                    <h3 class="text-lg font-semibold mb-4">任务状态分布</h3>
+                    <div class="h-80">
+                        <canvas id="statusDistributionChart"></canvas>
+                    </div>
+                </div>
+                <!-- 任务标签分布 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300">
+                    <h3 class="text-lg font-semibold mb-4">任务标签分布</h3>
+                    <div class="h-80">
+                        <canvas id="tagDistributionChart"></canvas>
+                    </div>
+                </div>
+                <!-- 工时对比 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300">
+                    <h3 class="text-lg font-semibold mb-4">预计 vs 实际工时</h3>
+                    <div class="h-80">
+                        <canvas id="hourComparisonChart"></canvas>
+                    </div>
+                </div>
+                <!-- 人员任务分布 -->
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-all-300">
+                    <h3 class="text-lg font-semibold mb-4">团队成员任务分布</h3>
+                    <div class="h-80">
+                        <canvas id="teamMemberChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class="fa fa-tasks text-primary text-xl"></i>
+                        <h3 class="text-xl font-bold">任务管理仪表盘</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">高效管理团队任务，提升工作效率</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-linkedin text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                &copy; 2023 任务管理仪表盘. 保留所有权利.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 数据存储
+        let dailyData = [];
+        let monthlyData = [];
+        let currentData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const itemsPerPage = 5;
+        let totalPages = 1;
+        let charts = {};
+
+        // DOM 元素
+        const taskTableBody = document.getElementById('taskTableBody');
+        const searchTasks = document.getElementById('searchTasks');
+        const filterStatus = document.getElementById('filterStatus');
+        const dataSource = document.getElementById('dataSource');
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const prevPage = document.getElementById('prevPage');
+        const nextPage = document.getElementById('nextPage');
+        const prevPageSm = document.getElementById('prevPageSm');
+        const nextPageSm = document.getElementById('nextPageSm');
+        const paginationNumbers = document.getElementById('paginationNumbers');
+        const startRange = document.getElementById('startRange');
+        const endRange = document.getElementById('endRange');
+        const totalItems = document.getElementById('totalItems');
+        const totalTasks = document.getElementById('totalTasks');
+        const taskStatusSummary = document.getElementById('taskStatusSummary');
+        const totalEstimatedHours = document.getElementById('totalEstimatedHours');
+        const totalActualHours = document.getElementById('totalActualHours');
+        const hourVariance = document.getElementById('hourVariance');
+        const variancePercentage = document.getElementById('variancePercentage');
+        const navbar = document.getElementById('navbar');
+
+        // 模拟CSV数据
+        const dailyCsvData = `任务ID,任务名称,标签,预计时长,实际时长,完成情况,完成人,开始时间,结束时间
+T006,性能监控系统开发,需求,20,18,进行中,李四,2023-11-06,2023-11-10
+T009,新功能需求分析,需求,8,6,进行中,张三,2023-11-10,2023-11-12
+T010,自动化测试脚本编写,改进,10,9,未开始,李四,2023-11-13,2023-11-15
+T012,用户体验调研,需求,6,7,进行中,赵六,2023-11-12,2023-11-14
+T014,系统备份策略优化,改进,4,4,未开始,李四,2023-11-16,2023-11-17
+T015,数据迁移工具开发,需求,15,12,进行中,王五,2023-11-14,2023-11-18`;
+
+        const monthlyCsvData = `任务ID,任务名称,标签,预计时长,实际时长,完成情况,完成人,开始时间,结束时间
+T006,性能监控系统开发,需求,20,20,已完成,李四,2023-11-06,2023-11-09
+T009,新功能需求分析,需求,8,5,已完成,张三,2023-11-10,2023-11-11
+T010,自动化测试脚本编写,改进,10,9,已完成,李四,2023-11-13,2023-11-14
+T012,用户体验调研,需求,6,5,已完成,赵六,2023-11-12,2023-11-13
+T014,系统备份策略优化,改进,4,4,已完成,李四,2023-11-16,2023-11-17
+T015,数据迁移工具开发,需求,15,12,已完成,王五,2023-11-14,2023-11-17
+T016,日志系统优化,改进,5,5,已完成,张三,2023-11-15,2023-11-16
+T017,数据库备份方案,改进,4,4,已完成,王五,2023-11-16,2023-11-17
+T018,用户权限管理优化,需求,8,8,已完成,赵六,2023-11-18,2023-11-19
+T019,性能测试报告生成,需求,6,6,已完成,张三,2023-11-20,2023-11-21`;
+
+        // 解析CSV数据
+        function parseCsv(csv) {
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',');
+            const result = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                const obj = {};
+                const currentLine = lines[i].split(',');
+
+                for (let j = 0; j < headers.length; j++) {
+                    obj[headers[j]] = currentLine[j];
+                }
+
+                // 转换数字类型
+                obj['预计时长'] = parseInt(obj['预计时长']);
+                obj['实际时长'] = parseInt(obj['实际时长']);
+
+                result.push(obj);
+            }
+
+            return result;
+        }
+
+        // 初始化数据
+        function initData() {
+            dailyData = parseCsv(dailyCsvData);
+            monthlyData = parseCsv(monthlyCsvData);
+            currentData = dailyData;
+            filteredData = [...currentData];
+            currentPage = 1;
+            updateTotalPages();
+        }
+
+        // 更新总页数
+        function updateTotalPages() {
+            totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage > totalPages) {
+                currentPage = Math.max(1, totalPages);
+            }
+        }
+
+        // 渲染任务表格
+        function renderTaskTable() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
+            const pageData = filteredData.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                taskTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-10 text-center text-gray-500">
+                            没有找到匹配的任务
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            pageData.forEach(task => {
+                let statusClass = '';
+                let statusIcon = '';
+
+                switch (task['完成情况']) {
+                    case '已完成':
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusIcon = 'fa-check-circle';
+                        break;
+                    case '进行中':
+                        statusClass = 'bg-blue-100 text-blue-800';
+                        statusIcon = 'fa-spinner';
+                        break;
+                    case '未开始':
+                        statusClass = 'bg-gray-100 text-gray-800';
+                        statusIcon = 'fa-clock-o';
+                        break;
+                }
+
+                let tagClass = '';
+                switch (task['标签']) {
+                    case '需求':
+                        tagClass = 'bg-purple-100 text-purple-800';
+                        break;
+                    case '改进':
+                        tagClass = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    default:
+                        tagClass = 'bg-gray-100 text-gray-800';
+                }
+
+                const timeRange = `${task['开始时间']} 至 ${task['结束时间']}`;
+
+                html += `
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${task['任务ID']}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task['任务名称']}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tagClass}">${task['标签']}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task['预计时长']} 小时</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task['实际时长']} 小时</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                                <i class="fa ${statusIcon} mr-1"></i> ${task['完成情况']}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${task['完成人']}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${timeRange}</td>
+                    </tr>
+                `;
+            });
+
+            taskTableBody.innerHTML = html;
+
+            // 更新分页信息
+            startRange.textContent = startIndex + 1;
+            endRange.textContent = endIndex;
+            totalItems.textContent = filteredData.length;
+
+            // 更新分页按钮状态
+            prevPage.disabled = currentPage === 1;
+            prevPageSm.disabled = currentPage === 1;
+            nextPage.disabled = currentPage === totalPages;
+            nextPageSm.disabled = currentPage === totalPages;
+
+            // 渲染页码
+            renderPaginationNumbers();
+        }
+
+        // 渲染分页数字
+        function renderPaginationNumbers() {
+            paginationNumbers.innerHTML = '';
+
+            // 显示最多5个页码
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+
+            // 调整起始页码，确保显示5个页码
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const button = document.createElement('button');
+                button.className = `relative inline-flex items-center px-4 py-2 border ${i === currentPage ? 'border-primary bg-primary text-white' : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'} text-sm font-medium`;
+                button.textContent = i;
+                button.addEventListener('click', () => {
+                    currentPage = i;
+                    renderTaskTable();
+                });
+                paginationNumbers.appendChild(button);
+            }
+        }
+
+        // 过滤任务
+        function filterTasks() {
+            const searchTerm = searchTasks.value.toLowerCase();
+            const statusFilter = filterStatus.value;
+
+            filteredData = currentData.filter(task => {
+                const matchesSearch = task['任务ID'].toLowerCase().includes(searchTerm) ||
+                                    task['任务名称'].toLowerCase().includes(searchTerm) ||
+                                    task['完成人'].toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || task['完成情况'] === statusFilter;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            currentPage = 1;
+            updateTotalPages();
+            renderTaskTable();
+            updateOverviewCards();
+            updateCharts();
+        }
+
+        // 更新概览卡片
+        function updateOverviewCards() {
+            const total = filteredData.length;
+            const completed = filteredData.filter(task => task['完成情况'] === '已完成').length;
+            const inProgress = filteredData.filter(task => task['完成情况'] === '进行中').length;
+            const notStarted = filteredData.filter(task => task['完成情况'] === '未开始').length;
+
+            let statusSummary = '';
+            if (completed > 0) statusSummary += `${completed} 已完成`;
+            if (inProgress > 0) statusSummary += `${statusSummary ? ', ' : ''}${inProgress} 进行中`;
+            if (notStarted > 0) statusSummary += `${statusSummary ? ', ' : ''}${notStarted} 未开始`;
+
+            const totalEstimated = filteredData.reduce((sum, task) => sum + task['预计时长'], 0);
+            const totalActual = filteredData.reduce((sum, task) => sum + task['实际时长'], 0);
+            const variance = totalActual - totalEstimated;
+            const variancePercent = totalEstimated > 0 ? ((variance / totalEstimated) * 100).toFixed(1) : 0;
+
+            totalTasks.textContent = total;
+            taskStatusSummary.textContent = statusSummary;
+            totalEstimatedHours.textContent = totalEstimated;
+            totalActualHours.textContent = totalActual;
+
+            if (variance >= 0) {
+                hourVariance.textContent = `+${variance}`;
+                hourVariance.className = 'text-3xl font-bold text-danger';
+                variancePercentage.textContent = `超出 ${variancePercent}%`;
+                variancePercentage.className = 'text-gray-500 text-sm mt-2 text-danger';
+            } else {
+                hourVariance.textContent = variance;
+                hourVariance.className = 'text-3xl font-bold text-secondary';
+                variancePercentage.textContent = `节省 ${Math.abs(variancePercent)}%`;
+                variancePercentage.className = 'text-gray-500 text-sm mt-2 text-secondary';
+            }
+        }
+
+        // 创建图表
+        function createCharts() {
+            // 任务状态分布图表
+            const statusCtx = document.getElementById('statusDistributionChart').getContext('2d');
+            charts.statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['已完成', '进行中', '未开始'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#10b981', '#3b82f6', '#9ca3af'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // 任务标签分布图表
+            const tagCtx = document.getElementById('tagDistributionChart').getContext('2d');
+            charts.tagChart = new Chart(tagCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['需求', '改进'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#8b5cf6', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 工时对比图表
+            const hourCtx = document.getElementById('hourComparisonChart').getContext('2d');
+            charts.hourChart = new Chart(hourCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '预计时长',
+                        data: [],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }, {
+                        label: '实际时长',
+                        data: [],
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: false,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '小时'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + ' 小时';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 团队成员任务分布图表
+            const teamCtx = document.getElementById('teamMemberChart').getContext('2d');
+            charts.teamChart = new Chart(teamCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#8b5cf6',
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            ticks: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${value} 任务`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新图表数据
+        function updateCharts() {
+            // 更新任务状态分布
+            const completed = filteredData.filter(task => task['完成情况'] === '已完成').length;
+            const inProgress = filteredData.filter(task => task['完成情况'] === '进行中').length;
+            const notStarted = filteredData.filter(task => task['完成情况'] === '未开始').length;
+
+            charts.statusChart.data.datasets[0].data = [completed, inProgress, notStarted];
+            charts.statusChart.update();
+
+            // 更新任务标签分布
+            const requirement = filteredData.filter(task => task['标签'] === '需求').length;
+            const improvement = filteredData.filter(task => task['标签'] === '改进').length;
+
+            charts.tagChart.data.datasets[0].data = [requirement, improvement];
+            charts.tagChart.update();
+
+            // 更新工时对比图表 - 只显示前5个任务避免图表过于拥挤
+            const topTasks = [...filteredData].sort((a, b) => b['预计时长'] - a['预计时长']).slice(0, 5);
+            const taskIds = topTasks.map(task => task['任务ID']);
+            const estimatedHours = topTasks.map(task => task['预计时长']);
+            const actualHours = topTasks.map(task => task['实际时长']);
+
+            charts.hourChart.data.labels = taskIds;
+            charts.hourChart.data.datasets[0].data = estimatedHours;
+            charts.hourChart.data.datasets[1].data = actualHours;
+            charts.hourChart.update();
+
+            // 更新团队成员任务分布
+            const members = [...new Set(filteredData.map(task => task['完成人']))];
+            const memberTasks = members.map(member => filteredData.filter(task => task['完成人'] === member).length);
+
+            charts.teamChart.data.labels = members;
+            charts.teamChart.data.datasets[0].data = memberTasks;
+            charts.teamChart.update();
+        }
+
+        // 切换数据源
+        function switchDataSource() {
+            const source = dataSource.value;
+            currentData = source === 'daily' ? dailyData : monthlyData;
+            filterTasks();
+        }
+
+        // 初始化应用
+        function initApp() {
+            initData();
+            createCharts();
+            filterTasks();
+
+            // 添加事件监听器
+            searchTasks.addEventListener('input', filterTasks);
+            filterStatus.addEventListener('change', filterTasks);
+            dataSource.addEventListener('change', switchDataSource);
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // 分页按钮事件
+            prevPage.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTaskTable();
+                }
+            });
+
+            nextPage.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTaskTable();
+                }
+            });
+
+            prevPageSm.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTaskTable();
+                }
+            });
+
+            nextPageSm.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTaskTable();
+                }
+            });
+
+            // 滚动监听，改变导航栏样式
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 10) {
+                    navbar.classList.add('py-2');
+                    navbar.classList.remove('py-3');
+                } else {
+                    navbar.classList.add('py-3');
+                    navbar.classList.remove('py-2');
+                }
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                        // 关闭移动端菜单
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

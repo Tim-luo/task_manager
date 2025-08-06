@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        .fade-in {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover {
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="text-center fade-in max-w-5xl w-full">
+        <div class="relative mb-12">
+            <!-- 中心标题 -->
+            <div class="flex items-center justify-center z-10 relative">
+                <i class="fa fa-tasks text-primary text-5xl mr-4 pulse-animation"></i>
+                <h1 class="text-4xl md:text-5xl font-bold text-dark">任务管理仪表盘</h1>
+            </div>
+        </div>
+        <p class="text-xl text-gray-600 mt-4">高效管理团队任务，提升工作效率</p>
+        <div class="mt-10 flex justify-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+    </div>
+        <!-- 移动端导航 -->
+        <div id="sidebar" class="fixed top-40 left-0 bottom-40 w-10 bg-white shadow-lg z-50 p-3 transition-all duration-300 overflow-hidden hover:w-40">
+            <div class="flex flex-col justify-around h-full">
+                <a href="daily_tasks.html" class="nav-item flex flex-col items-center px-2">
+                    <i class="fa fa-flag text-xl mb-1 text-blue-500"></i>
+                    <span class="text-xs font-medium text-blue-600 opacity-0 hover:opacity-100 transition-opacity duration-300">日任务</span>
+                </a>
+                <a href="monthly_tasks.html" class="nav-item flex flex-col items-center px-2">
+                    <i class="fa fa-snapchat-square text-xl mb-1 text-green-500"></i>
+                    <span class="text-xs font-medium text-green-600 opacity-0 hover:opacity-100 transition-opacity duration-300">月任务</span>
+                </a>
+                <a href="yearly_tasks.html" class="nav-item flex flex-col items-center px-2">
+                    <i class="fa fa-calendar text-xl mb-1 text-purple-500"></i>
+                    <span class="text-xs font-medium text-purple-600 opacity-0 hover:opacity-100 transition-opacity duration-300">年任务</span>
+                </a>
+                <a href="top_quality_tasks.html" class="nav-item flex flex-col items-center px-2">
+                    <i class="fa fa-star text-xl mb-1 text-amber-500"></i>
+                    <span class="text-xs font-medium text-amber-600 opacity-0 hover:opacity-100 transition-opacity duration-300">TOP质量</span>
+                </a>
+            </div>
+        </div>
+
+        <script>
+            // 导航栏悬停显示效果
+            const sidebar = document.getElementById('sidebar');
+            sidebar.addEventListener('mouseenter', () => {
+                sidebar.classList.add('w-40');
+                sidebar.classList.remove('w-10');
+                // 显示文字
+                const spans = sidebar.querySelectorAll('span');
+                spans.forEach(span => {
+                    span.classList.add('opacity-100');
+                    span.classList.remove('opacity-0');
+                });
+            });
+            sidebar.addEventListener('mouseleave', () => {
+                sidebar.classList.add('w-10');
+                sidebar.classList.remove('w-40');
+                // 隐藏文字
+                const spans = sidebar.querySelectorAll('span');
+                spans.forEach(span => {
+                    span.classList.add('opacity-0');
+                    span.classList.remove('opacity-100');
+                });
+            });
+        </script>
+    </body>
+</html>

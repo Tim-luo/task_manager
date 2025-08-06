@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>月任务 - 任务管理仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50 font-inter text-dark min-h-screen flex">
+    <!-- 侧边导航栏 -->
+    <aside class="bg-white shadow-md w-56 md:w-64 h-screen fixed left-0 top-0 z-40 overflow-y-auto transition-all duration-300" id="sidebar">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-tasks text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">任务管理</h1>
+            </div>
+        </div>
+        <nav class="py-4">
+            <a href="daily_tasks.html" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-transparent">
+                <i class="fa fa-calendar-day w-5 text-center mr-3"></i>
+                <span>日任务</span>
+            </a>
+            <a href="monthly_tasks.html" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-primary bg-primary/5">
+                <i class="fa fa-calendar-alt w-5 text-center mr-3"></i>
+                <span>月任务</span>
+            </a>
+            <a href="yearly_tasks.html" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-transparent">
+                <i class="fa fa-calendar w-5 text-center mr-3"></i>
+                <span>年任务</span>
+            </a>
+            <a href="top_quality_tasks.html" class="flex items-center px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors duration-200 border-l-4 border-transparent">
+                <i class="fa fa-star w-5 text-center mr-3"></i>
+                <span>TOP质量任务</span>
+            </a>
+        </nav>
+    </aside>
+    <div class="flex-1 ml-56 md:ml-64 overflow-x-auto">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md fixed w-full top-0 left-56 md:left-64 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-tasks text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">任务管理仪表盘</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="index.html#overview" class="text-gray-600 hover:text-primary transition-colors duration-200">概览</a>
+                <a href="index.html#tasks" class="text-gray-600 hover:text-primary transition-colors duration-200">任务列表</a>
+                <a href="index.html#analytics" class="text-gray-600 hover:text-primary transition-colors duration-200">数据分析</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow container mx-auto px-4 pt-24 pb-12">
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fa fa-calendar-alt text-primary text-3xl mr-3 pulse-animation"></i> 月任务
+            </h2>
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <p>这里是月任务的详细内容。</p>
+                <!-- 可以添加更多月任务相关的内容 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class="fa fa-tasks text-primary text-xl"></i>
+                        <h3 class="text-xl font-bold">任务管理仪表盘</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">高效管理团队任务，提升工作效率</p>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-linkedin text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+                &copy; 2023 任务管理仪表盘. 保留所有权利.
+            </div>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

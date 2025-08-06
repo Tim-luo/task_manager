@@ -1,0 +1,14 @@
+/* 自定义工具类 */
+.content-auto {
+    content-visibility: auto;
+}
+
+.card-shadow {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.transition-all-300 {
+    transition: all 300ms ease-in-out;
+}
+
+/* 自定义颜色和字体可以通过Tailwind配置实现，此处仅保留工具类 */

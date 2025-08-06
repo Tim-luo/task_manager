@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>团队任务绩效管理 - PPT演示</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        accent: '#8b5cf6',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .slide-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
+            .scale-on-hover {
+                transition: transform 0.3s ease;
+            }
+            .scale-on-hover:hover {
+                transform: scale(1.02);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen font-inter overflow-x-hidden">
+    <!-- 导航控制 -->
+    <div class="fixed bottom-6 left-0 right-0 flex justify-center space-x-4 z-50">
+        <button id="prevBtn" class="bg-primary/80 hover:bg-primary text-white px-4 py-2 rounded-full transition-all duration-200 flex items-center opacity-80 hover:opacity-100">
+            <i class="fa fa-chevron-left mr-2"></i> 上一页
+        </button>
+        <button id="nextBtn" class="bg-primary/80 hover:bg-primary text-white px-4 py-2 rounded-full transition-all duration-200 flex items-center opacity-80 hover:opacity-100">
+            下一页 <i class="fa fa-chevron-right ml-2"></i>
+        </button>
+        <button id="toggleFullscreen" class="bg-dark/80 hover:bg-dark text-white px-4 py-2 rounded-full transition-all duration-200 opacity-80 hover:opacity-100">
+            <i class="fa fa-expand"></i>
+        </button>
+    </div>
+
+    <!-- 页码指示器 -->
+    <div class="fixed top-6 right-6 flex space-x-2 z-50 bg-dark/70 px-3 py-1 rounded-full">
+        <span id="currentSlide">1</span> / <span id="totalSlides">0</span>
+    </div>
+
+    <!-- 幻灯片容器 -->
+    <div id="slidesContainer" class="flex transition-transform duration-500 ease-in-out h-screen w-screen overflow-hidden">
+        <!-- 封面页 -->
+        <div class="slide min-w-full h-full flex flex-col items-center justify-center px-6 relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-dark z-0"></div>
+            <div class="z-10 text-center max-w-4xl">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary mb-6 shadow-lg">
+                    <i class="fa fa-tasks text-2xl text-white"></i>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-primary">团队任务绩效管理</h1>
+                <p class="text-xl md:text-2xl text-gray-300 mb-8">高效管理团队任务，提升工作效率与质量</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="flex items-center text-gray-300">
+                        <i class="fa fa-calendar text-primary mr-2"></i> 数据驱动决策
+                    </div>
+                    <div class="flex items-center text-gray-300">
+                        <i class="fa fa-bar-chart text-secondary mr-2"></i> 实时进度监控
+                    </div>
+                    <div class="flex items-center text-gray-300">
+                        <i class="fa fa-users text-accent mr-2"></i> 团队协作优化
+                    </div>
+                </div>
+            </div>
+            <div class="absolute bottom-12 text-gray-400 text-sm">
+                <p>按 → 键继续</p>
+            </div>
+        </div>
+
+        <!-- 项目概述 -->
+        <div class="slide min-w-full h-full flex flex-col items-center justify-center px-6 bg-dark relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full filter blur-3xl -mr-32 -mt-32"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full filter blur-3xl -ml-32 -mb-32"></div>
+            <div class="z-10 max-w-5xl w-full">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-gray-700 pb-4">项目概述</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-primary/20 p-3 rounded-lg mr-4">
+                                <i class="fa fa-eye text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">项目目标</h3>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">
+                            实现功能完善的任务管理仪表盘，展示团队任务进度、完成情况、耗时统计及负责人分配，帮助团队提升工作效率和管理水平。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-secondary/20 p-3 rounded-lg mr-4">
+                                <i class="fa fa-database text-secondary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">数据来源</h3>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">
+                            所有数据来源于团队成员的任务记录，包含工作预计时长、实际时长、完成情况、完成人等信息，并通过需求、故障、改进三类标签进行分类管理。
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-8 bg-gray-800/50 p-6 rounded-xl slide-shadow">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-accent/20 p-3 rounded-lg mr-4">
+                            <i class="fa fa-pie-chart text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">核心功能模块</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div class="bg-gray-700/30 p-4 rounded-lg border-l-4 border-primary">
+                            <h4 class="font-medium mb-2 flex items-center"><i class="fa fa-calendar-check-o mr-2"></i> 日任务管理</h4>
+                            <p class="text-sm text-gray-400">实时跟踪日常任务进度与分配</p>
+                        </div>
+                        <div class="bg-gray-700/30 p-4 rounded-lg border-l-4 border-secondary">
+                            <h4 class="font-medium mb-2 flex items-center"><i class="fa fa-bar-chart-o mr-2"></i> 月任务总结</h4>
+                            <p class="text-sm text-gray-400">月度任务完成情况分析与评估</p>
+                        </div>
+                        <div class="bg-gray-700/30 p-4 rounded-lg border-l-4 border-accent">
+                            <h4 class="font-medium mb-2 flex items-center"><i class="fa fa-line-chart mr-2"></i> 半年任务总结</h4>
+                            <p class="text-sm text-gray-400">长期趋势分析与经验沉淀</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 日任务管理 -->
+        <div class="slide min-w-full h-full flex flex-col items-center justify-center px-6 bg-dark relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full filter blur-3xl -ml-32 -mt-32"></div>
+            <div class="z-10 max-w-5xl w-full">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-gray-700 pb-4">日任务管理</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-primary/20 p-2 rounded-lg mr-3">
+                                <i class="fa fa-list-alt text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">需求任务跟踪</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            实时监控需求类任务的进度、预计/实际时长、完成状态及负责人，支持按任务ID、名称、完成人等维度筛选查看。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-danger/20 p-2 rounded-lg mr-3">
+                                <i class="fa fa-exclamation-triangle text-danger"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">故障任务跟踪</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            集中展示故障类任务的解决进展、耗时情况、优先级及处理人，确保问题快速响应和解决。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-warning/20 p-2 rounded-lg mr-3">
+                                <i class="fa fa-calendar text-warning"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">团队成员甘特图</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            通过甘特图直观展示团队成员在需求和故障任务上的分配及进度情况，包含已完成和未完成任务，支持按时间维度（日/周）查看和调整任务安排。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-secondary/20 p-2 rounded-lg mr-3">
+                                <i class="fa fa-clock-o text-secondary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">任务工时统计</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            汇总当日所有任务的预计工时与实际工时对比，分析工时偏差原因，优化后续任务评估准确性。
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-6 bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                    <div class="flex items-center mb-3">
+                        <div class="bg-accent/20 p-2 rounded-lg mr-3">
+                            <i class="fa fa-tasks text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">任务完成状态看板</h3>
+                    </div>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        以看板形式展示各类任务的完成状态分布（已完成/进行中/未开始），快速掌握当日工作进展。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 月任务总结 -->
+        <div class="slide min-w-full h-full flex flex-col items-center justify-center px-6 bg-dark relative overflow-hidden">
+            <div class="absolute bottom-0 right-0 w-64 h-64 bg-secondary/10 rounded-full filter blur-3xl -mr-32 -mb-32"></div>
+            <div class="z-10 max-w-5xl w-full">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-gray-700 pb-4">月任务总结</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-primary/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-file-text-o text-primary"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">需求任务总结</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            统计分析当月所有需求类任务的数量、完成率、平均工时、延期情况及分布，识别需求处理瓶颈。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-danger/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-bug text-danger"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">故障任务总结</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            汇总当月故障类任务的数量、解决率、平均解决时间、严重级别分布及重复出现问题。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-secondary/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-line-chart text-secondary"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">质量改进</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            跟踪当月质量改进措施的实施情况、相关任务完成效果、缺陷率变化趋势。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-accent/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-star text-accent"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">TOP质量任务总结</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            基于任务完成质量、效率、影响力等维度评选当月TOP质量任务，展示优秀实践和经验。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-warning/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-user-o text-warning"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">团队成员完成任务</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            统计分析团队成员当月任务完成数量、质量评分、工时投入、延期率等指标，评估个人绩效。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-primary/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-users text-primary"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">人力投入占比</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            分析团队在需求开发和故障处理上的人力分布比例，评估资源分配合理性。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-secondary/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-balance-scale text-secondary"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">工时偏差分析</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            对比当月所有任务的预计工时与实际工时差异，分析偏差原因，提升未来任务评估准确性。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-5 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-accent/20 p-2 rounded-lg mr-3 flex-shrink-0">
+                                <i class="fa fa-pie-chart text-accent"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold">任务类型分布</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            展示当月需求、故障、改进三类任务的数量占比和工时占比，帮助团队了解工作重点。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 半年任务总结 -->
+        <div class="slide min-w-full h-full flex flex-col items-center justify-center px-6 bg-dark relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full filter blur-3xl -mr-32 -mt-32"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full filter blur-3xl -ml-32 -mb-32"></div>
+            <div class="z-10 max-w-5xl w-full">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-gray-700 pb-4">半年任务总结</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-accent/20 p-3 rounded-lg mr-4">
+                                <i class="fa fa-trophy text-accent"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">TOP质量任务总结</h3>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">
+                            汇总半年内所有TOP质量任务，分析优秀实践和成功经验，形成团队知识库和最佳实践指南，供团队成员学习和参考。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-primary/20 p-3 rounded-lg mr-4">
+                                <i class="fa fa-file-text-o text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">半年团队需求总结</h3>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">
+                            对半年内所有需求类任务进行汇总分析，包括需求数量、类型分布、完成率、平均工时、延期情况等，识别需求变化趋势和团队需求处理能力的提升。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-danger/20 p-3 rounded-lg mr-4">
+                                <i class="fa fa-shield text-danger"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">半年团队故障总结</h3>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">
+                            分析半年内故障类任务的数量、类型、严重程度、重复出现情况、平均解决时间等指标，评估系统稳定性和团队故障处理能力的提升。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-secondary/20 p-3 rounded-lg mr-4">
+                                <i class="fa fa-archive text-secondary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">总结存档与查看</h3>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed">
+                            支持将半年总结内容进行存档，方便后续查阅和对比分析。提供历史总结查询功能，支持按时间、关键词等维度检索，帮助团队积累和传承经验。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据展示与使用 -->
+        <div class="slide min-w-full h-full flex flex-col items-center justify-center px-6 bg-dark relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-64 h-64 bg-primary/10 rounded-full filter blur-3xl -ml-32 -mt-32"></div>
+            <div class="z-10 max-w-5xl w-full">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 text-center border-b border-gray-700 pb-4">数据展示与使用</h2>
+                <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow mb-6">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fa fa-line-chart text-primary mr-2"></i> 数据可视化 dashboard
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-700/30 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">任务状态分布</h4>
+                            <div class="w-full h-40 bg-gray-800 rounded-lg flex items-center justify-center">
+                                <i class="fa fa-pie-chart text-4xl text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700/30 p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">工时对比分析</h4>
+                            <div class="w-full h-40 bg-gray-800 rounded-lg flex items-center justify-center">
+                                <i class="fa fa-bar-chart text-4xl text-gray-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-warning/20 p-2 rounded-lg mr-3">
+                                <i class="fa fa-lightbulb-o text-warning"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">数据驱动决策</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            通过对任务数据的分析，识别团队工作瓶颈、资源分配问题和流程优化机会，为管理层提供决策支持，持续提升团队效率和质量。
+                        </p>
+                    </div>
+                    <div class="bg-gray-800/50 p-6 rounded-xl slide-shadow scale-on-hover">
+                        <div class="flex items-center mb-3">
+                            <div class="bg-secondary/20 p-2 rounded-lg mr-3">
+                                <i class="fa fa-users text-secondary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">团队协作优化</h3>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            基于任务数据，优化团队成员分工和协作方式，平衡工作负载，提高团队整体效率和满意度，促进知识共享和技能提升。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结束页 -->
+        <div class="slide min-w-full h-full flex flex-col items-center justify-center px-6 relative">
+            <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/20 to-dark z-0"></div>
+            <div class="z-10 text-center max-w-3xl">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary mb-8 shadow-lg">
+                    <i class="fa fa-check-circle text-3xl text-white"></i>
+                </div>
+                <h2 class="text-4xl font-bold mb-6">团队任务绩效管理</h2>
+                <p class="text-xl text-gray-300 mb-10">提升团队效率，优化资源分配，实现卓越绩效</p>
+                <div class="flex justify-center space-x-6">
+                    <a href="task_dashboard.html" target="_blank" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all duration-200 flex items-center"><i class="fa fa-dashboard mr-2"></i> 查看演示 dashboard</a>
+                    <button id="restartBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-all duration-200 flex items-center"><i class="fa fa-refresh mr-2"></i> 重新开始演示</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const slidesContainer = document.getElementById('slidesContainer');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const toggleFullscreenBtn = document.getElementById('toggleFullscreen');
+        const restartBtn = document.getElementById('restartBtn');
+        const currentSlideEl = document.getElementById('currentSlide');
+        const totalSlidesEl = document.getElementById('totalSlides');
+
+        // 幻灯片管理
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        // 更新页码显示
+        function updateSlideCounter() {
+            currentSlideEl.textContent = currentSlide + 1;
+            totalSlidesEl.textContent = totalSlides;
+        }
+
+        // 切换幻灯片
+        function goToSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+
+            currentSlide = index;
+            const translateValue = -currentSlide * 100;
+            slidesContainer.style.transform = `translateX(${translateValue}%)`;
+            updateSlideCounter();
+        }
+
+        // 事件监听器
+        prevBtn.addEventListener('click', () => {
+            goToSlide(currentSlide - 1);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            goToSlide(currentSlide + 1);
+        });
+
+        restartBtn.addEventListener('click', () => {
+            goToSlide(0);
+        });
+
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                goToSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft') {
+                goToSlide(currentSlide - 1);
+            } else if (e.key === 'Escape' && document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        });
+
+        // 全屏切换
+        toggleFullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`全屏请求错误: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
+
+        // 全屏状态变化监听
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                toggleFullscreenBtn.innerHTML = '<i class="fa fa-compress"></i>';
+            } else {
+                toggleFullscreenBtn.innerHTML = '<i class="fa fa-expand"></i>';
+            }
+        });
+
+        // 初始化
+        updateSlideCounter();
+
+        // 自动播放（可选）
+        // let autoplayInterval;
+        // function startAutoplay() {
+        //     autoplayInterval = setInterval(() => {
+        //         goToSlide((currentSlide + 1) % totalSlides);
+        //     }, 5000);
+        // }
+        // startAutoplay();
+
+        // // 鼠标移动时暂停自动播放
+        // document.addEventListener('mousemove', () => {
+        //     clearInterval(autoplayInterval);
+        //     setTimeout(startAutoplay, 3000);
+        // });
+    </script>
+</body>
+</html>
