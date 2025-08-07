@@ -2,9 +2,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // 初始化数据
     window.dataModule.initData();
-    // 初始化图表
-    window.chartModule.createCharts();
-
     // DOM元素
     const taskTableBody = document.getElementById('taskTableBody');
     const searchTasks = document.getElementById('searchTasks');
